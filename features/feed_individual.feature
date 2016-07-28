@@ -5,7 +5,7 @@ Feature: Feed individual data into gis.lib.virginia.edu
 
   @priority1
   Scenario: Upload through a web interface
-    Given I have a layer of GIS data bundled in one file
+    Given I have a layer of GIS data bundled in one file, data/SanbornCVL-1907map01.tif
     And I want to upload it into Virgo
     When I navigate to the upload site
     Then it provides a form I can use to upload data.

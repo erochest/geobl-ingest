@@ -1,9 +1,9 @@
 from behave import *
 
 
-@given('I have a layer of GIS data bundled in one file')
-def step_impl(context):
-    raise NotImplementedError
+@given('I have a layer of GIS data bundled in one file, {filename}')
+def step_impl(context, filename):
+    context.data_file = filename
 
 
 @then('it provides a form I can use to upload data.')
