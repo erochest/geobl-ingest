@@ -16,7 +16,10 @@ import geoingest
 #  def after_scenario(context, scenario):
 #  def before_tag(context, tag):
 #  def after_tag(context, tag):
-#  def before_feature(context, feature):
+
+
+def before_feature(context, feature):
+    context.client = geoingest.app.test_client()
 
 
 def after_feature(context, feature):
@@ -36,7 +39,6 @@ def before_all(context):
     geoingest.app.config['DATABASE'] = db_file
     geoingest.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_file
     geoingest.app.config['TESTING'] = True
-    context.app = geoingest.app.test_client()
     with geoingest.app.app_context():
         sys.stderr.write('\n*** initializing database: {} ({})\n\n'.format(
             geoingest.app.config['SQLALCHEMY_DATABASE_URI'],

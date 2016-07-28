@@ -4,7 +4,8 @@
 """The webapp to upload and ingest GeoTIFFs into Virgo."""
 
 
-from flask import Flask
+from flask import Flask, request, session, g, redirect, url_for, abort, \
+        render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
@@ -24,6 +25,11 @@ manager.add_command('db', MigrateCommand)
 def init_db():
     """Initialize the database."""
     flask_migrate.migrate()
+
+
+@app.route('/')
+def upload_form():
+    return render_template('index.html')
 
 
 if __name__ == '__main__':

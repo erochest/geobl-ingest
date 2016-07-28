@@ -13,7 +13,7 @@ def step_impl(context):
 
 @when('I navigate to the upload site')
 def step_impl(context):
-    raise NotImplementedError
+    context.response = context.client.get('/')
 
 
 @then('it provides a form I can use to upload all the layers.')
