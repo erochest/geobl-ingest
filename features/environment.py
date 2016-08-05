@@ -19,12 +19,12 @@ import geoingest
 
 
 def before_feature(context, feature):
-    context.client = geoingest.app.test_client()
+    context.client = context.app.test_client()
 
 
 def after_feature(context, feature):
     """Clean out the database after each feature runs."""
-    with closing(sqlite3.connect(geoingest.app.config['DATABASE'])) as cxn:
+    with closing(sqlite3.connect(context.app.config['DATABASE'])) as cxn:
         with closing(cxn.cursor()) as cursor:
             tables = list(cursor.execute('''
                 SELECT name FROM sqlite_master WHERE type='table';
@@ -35,13 +35,14 @@ def after_feature(context, feature):
 
 def before_all(context):
     """Set up the database before testing."""
+    context.app = geoingest.create_app()
     context.db_fd, db_file = tempfile.mkstemp()
-    geoingest.app.config['DATABASE'] = db_file
-    geoingest.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_file
-    geoingest.app.config['TESTING'] = True
-    with geoingest.app.app_context():
+    context.app.config['DATABASE'] = db_file
+    context.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_file
+    context.app.config['TESTING'] = True
+    with context.app.app_context():
         sys.stderr.write('\n*** initializing database: {} ({})\n\n'.format(
-            geoingest.app.config['SQLALCHEMY_DATABASE_URI'],
+            context.app.config['SQLALCHEMY_DATABASE_URI'],
             os.path.exists(db_file),
         ))
         geoingest.init_db()
@@ -50,4 +51,4 @@ def before_all(context):
 def after_all(context):
     """Delete the database after testing."""
     os.close(context.db_fd)
-    os.unlink(geoingest.app.config['DATABASE'])
+    os.unlink(context.app.config['DATABASE'])
