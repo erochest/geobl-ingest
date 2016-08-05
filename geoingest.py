@@ -17,26 +17,35 @@ from flask_assets import Environment, Bundle
 
 CWD = os.path.dirname(__file__)
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///geoingest.db'
 
-assets = Environment(app)
-assets.load_path = [
-    os.path.join(CWD, 'sass'),
-]
-
-assets.url = app.static_url_path
-assets.directory = app.static_folder
-assets.append_path('assets')
-
+assets = Environment()
 scss = Bundle('main.scss', filters='scss', output='css/style.css')
 assets.register('css_all', scss)
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db = SQLAlchemy()
+migrate = Migrate()
 
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
+
+def create_app():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///geoingest.db'
+
+    assets.init_app(app)
+    app.config['ASSETS_LOAD_PATH'] = [
+        os.path.join(CWD, 'sass'),
+    ]
+    #  assets.url = app.static_url_path
+    #  assets.directory = app.static_folder
+    #  assets.append_path('assets')
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    @app.route('/')
+    def upload_form():
+        return render_template('index.html')
+
+    return app
 
 
 def init_db():
@@ -44,10 +53,8 @@ def init_db():
     flask_migrate.migrate()
 
 
-@app.route('/')
-def upload_form():
-    return render_template('index.html')
-
-
 if __name__ == '__main__':
+    manager = Manager(create_app())
+    manager.add_command('db', MigrateCommand)
+
     manager.run()
